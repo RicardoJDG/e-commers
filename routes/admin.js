@@ -3,81 +3,86 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const express = require("express");
 
-
 //Get Costumers
 router.get("/customers", async (req, res) => {
   try {
-      const customers = await pool.query("SELECT * FROM customers");
-    res.json(customers.rows);
+    const customers = await pool.query("SELECT * FROM customers");
+    return res.status(200).json(customers.rows);
   } catch (error) {
     console.error(error.message);
     res.status(error.status).json("Something went wrong");
   }
 });
 
-
 //GET SPECIFIC COSTUMER
 router.get("/customers/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const customers = await pool.query("SELECT * FROM customers WHERE id = $1", [
-      id,
-    ]);
-    res.json(customers.rows);
+
+    const customers = await pool.query(
+      "SELECT * FROM customers WHERE id = $1",
+      [id]
+    );
+    return res.status(200).json(customers.rows);
   } catch (error) {
-    console.error(error.message)
-    res.status(error.status).json("Something went wrong");
+    console.error(error.message);
+    return res.status(error.status).json("Something went wrong");
   }
 });
 
 //Modificate costumer
-router.put("/customers/:id", async (req, res) => { 
+router.put("/customers/:id", async (req, res) => {
   const { first_name, email, password } = req.body;
-  console.log (req.body)
+  console.log(req.body);
   try {
-   
     const { id } = req.params;
-    console.log(id)
+    console.log(id);
     const insertQuery =
       "UPDATE customers SET first_name = $1, email = $2, password = $3 where id = $4";
 
-      const changeUser = await pool.query(insertQuery, [first_name, email, password, id]);
+    const changeUser = await pool.query(insertQuery, [
+      first_name,
+      email,
+      password,
+      id,
+    ]);
     return res.status(200).json("User updated succesfully");
   } catch (error) {
-    console.error(error.message)
+    console.error(error.message);
     res.status(error.status).json("Something went wrong");
   }
 });
 
-
 //Borrar costumer
 router.delete("/customers/:id", (req, res) => {
   const { id } = req.params;
-try {
-  const result = pool.query("DELETE FROM customers where id = $1", [id])
-  return res.status(204).json("User DELETED succesfully");
-} catch (error) {
-  console.error(error.message)
-  res.status(error.status).json("Something went wrong");
-}
- });
+  pool
+    .query("DELETE FROM orders WHERE customer_id=$1 AND open=true", [id])
+    .then((response) => {
+      pool
+        .query("DELETE FROM customers WHERE id=$1", [id])
+        .then((resp) => {
+          return res.status(204).json("User Deleted Succesfully");
+        })
+        .catch((err) => {
+          console.error(err.message);
+          return res.status(500).json("Something went wrong");
+        });
+    });
+});
 
+/////////PRODUCTOS
 
- /////////PRODUCTOS
-
- //Get all Products
- router.get("/products", async (req, res) => {
+//Get all Products
+router.get("/products", async (req, res) => {
   try {
-      const products = await pool.query("SELECT * FROM products");
+    const products = await pool.query("SELECT * FROM products");
     res.json(products.rows);
   } catch (error) {
     console.error(error.message);
     res.status(error.status).json("Something went wrong");
   }
 });
-
-
 
 //GET SPECIFIC PRODUCT
 router.get("/products/:id", async (req, res) => {
@@ -93,15 +98,21 @@ router.get("/products/:id", async (req, res) => {
   }
 });
 
-// Add Products 
+// Add Products
 
 router.post("/products/add", async (req, res) => {
   const { product_name, category, price, image, description } = req.body;
   try {
-   const insertQuery =
+    const insertQuery =
       "INSERT INTO products (product_name, category, unit_price, image, description ) VALUES ($1, $2, $3, $4, $5)";
-   
-    const newUser = await pool.query(insertQuery, [product_name, category, price, image, description]);
+
+    const newUser = await pool.query(insertQuery, [
+      product_name,
+      category,
+      price,
+      image,
+      description,
+    ]);
 
     //Do we assign jwt here? ask in meeting
     return res.status(200).json("Product created succesfully");
@@ -111,35 +122,40 @@ router.post("/products/add", async (req, res) => {
   }
 });
 
-
 //Modificate products
-router.put("/products/:id", async (req, res) => { 
+router.put("/products/:id", async (req, res) => {
   const { product_name, category, price, image, description } = req.body;
-  
-  try {   
+
+  try {
     const { id } = req.params;
     const insertQuery =
       "UPDATE products SET product_name = $1, category = $2, unit_price = $3, image = $4, description = $5  where id = $6";
 
-      const changeUser = await pool.query(insertQuery, [product_name, category, price, image, description, id]);
+    const changeUser = await pool.query(insertQuery, [
+      product_name,
+      category,
+      price,
+      image,
+      description,
+      id,
+    ]);
     return res.status(200).json("Product updated succesfully");
   } catch (error) {
-    console.error(error.message)
+    console.error(error.message);
     res.status(error.status).json("Something went wrong");
   }
 });
 
-
 //Borrar costumer
 router.delete("/products/:id", (req, res) => {
   const { id } = req.params;
-try {
-  const result = pool.query("DELETE FROM products where id = $1", [id])
-  return res.status(204).json("Product DELETED succesfully");
-} catch (error) {
-  console.error(error.message)
-  res.status(error.status).json("Something went wrong");
-}
- });
+  try {
+    const result = pool.query("DELETE FROM products where id = $1", [id]);
+    return res.status(204).json("Product DELETED succesfully");
+  } catch (error) {
+    console.error(error.message);
+    res.status(error.status).json("Something went wrong");
+  }
+});
 
 module.exports = router;

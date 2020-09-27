@@ -7,23 +7,32 @@ const ShowProducts = (props) => {
   //DELETE FUNCTION
 
   const deleteProduct = async (id) => {
-    let respuesta = window.confirm(
-      `Are you sure you wanna delete the product ${data.product_name}?? `
-    );
-    if (respuesta) {
-      try {
-        const response = await fetch(
-          `/admin/products/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        const res = await response.json();
-
-      } catch (error) {
-        console.error(error);
+    if (data.product_name) {
+      let respuesta = window.confirm(
+        `Are you sure you want to delete the product ${data.product_name}? `
+      );
+      if (respuesta) {
+        fetch(`/admin/products/${id}`, {
+          method: "DELETE",
+        })
+          .then(() => {
+            window.location.href = "/owner/products";
+          })
+          .catch((err) => console.error(err));
       }
-      props.refresh(Math.random());
+    } else {
+      let respuesta = window.confirm(
+        `Are you sure you want to delete the customer ${data.first_name}? `
+      );
+      if (respuesta) {
+        fetch(`/admin/customers/${id}`, {
+          method: "DELETE",
+        })
+          .then(() => {
+            window.location.href = "/owner/customers";
+          })
+          .catch((err) => console.error(err));
+      }
     }
   };
 
@@ -32,9 +41,10 @@ const ShowProducts = (props) => {
       <th>{data.id}</th>
       <th>{data.product_name || data.first_name} </th>
       <th>{data.category || data.last_name || "undefined"}</th>
-      <th>{data.unit_price || data.email }</th>
+      <th>{data.unit_price || data.email}</th>
       <th>
-        {<img src={`${data.image}`} alt="" /> || data.address + data.city + data.postcode + data.country}
+        {<img src={`${data.image}`} alt="" /> ||
+          data.address + data.city + data.postcode + data.country}
       </th>
       <th>{data.description || data.movile || "undefined"}</th>
 

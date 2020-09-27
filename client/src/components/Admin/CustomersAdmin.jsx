@@ -3,8 +3,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import ShowProducts from "./ShowProducts";
 
 const CustomersAdmin = () => {
-  const [refres, setRefres] = useState(Math.random());
-
   const [customersData, setCustomersData] = useState([]);
 
   useEffect(() => {
@@ -15,8 +13,7 @@ const CustomersAdmin = () => {
       .then((json) => {
         setCustomersData(json);
       });
-    
-  }, [refres]);
+  }, []);
 
   return (
     <Fragment>
@@ -40,11 +37,7 @@ const CustomersAdmin = () => {
           <tbody>
             {customersData
               ? customersData.map((product, index) => (
-                  <ShowProducts
-                    data={product}
-                    index={index}
-                    refresh={setRefres}
-                  />
+                  <ShowProducts data={product} index={index} />
                 ))
               : null}
           </tbody>

@@ -17,18 +17,17 @@ const Login = (props) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
-  const [isAdmin, setIsAdmin ] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
     if (email === "admin" && password === "admin") {
       alert("Welcome Admin");
-      setIsAdmin(true)
+      setIsAdmin(true);
       setTimeout(() => {
-        CloseLogin()
+        CloseLogin();
       }, 400);
-      
     } else {
       try {
         const body = { email, password };
@@ -71,7 +70,6 @@ const Login = (props) => {
     <div>
       <div className="modal">
         <div className="Login-modal">
-          {isAdmin ? <Redirect to="/owner"/> : null}
           <button id="LoginbuttonClose" onClick={CloseLogin}>
             X
           </button>
